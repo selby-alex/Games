@@ -121,7 +121,7 @@ class dealer:
 		while len(self.hand) < 2:
 			self.hand.append(cardDeal())
 			self.handCalc()
-		self.bet = raw_input('How much will you bet? > ')
+		#self.bet = raw_input('How much will you bet? > ')
 
 	def handCalc(self):
 		self.score = 0
@@ -157,15 +157,19 @@ class dealer:
 
 	def dealerAction(self):
 		print("Dealer reveals: %s" % (self.hand))
-		if self.score == 21 and len(self.hand) == 2:
-			print("Dealer blackjack.")
-		elif self.score < 17 and self.action == 'deal':
-			self.hand.append(cardDeal())
-			self.handCalc()
-			print("Dealer hits %s, %s" % (str(self.score), self.hand))
-		else:
-			print("House Stays at %s" % (self.score))
-			self.action = None
+		while self.action == 'deal':
+			if self.score == 21 and len(self.hand) == 2:
+				print("Dealer blackjack.")
+			elif self.score < 17 and self.action == 'deal':
+				self.hand.append(cardDeal())
+				print("Dealer hits %s, %s" % (str(self.score), self.hand))
+				self.handCalc()
+			elif self.score > 21:
+				print("Dealers busts at %s" % (self.score))
+				self.action = None
+			else:
+				print("Dealer Stays at %s" % (self.score))
+				self.action = None
 
 player1 = player()
 house = dealer()
