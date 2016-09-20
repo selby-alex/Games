@@ -49,25 +49,24 @@ class player:
 			self.hand.append(cardDeal())
 
 	def handCalc(self):
-		if self.score < 22:
-			self.score = 0
-			for val, suit in self.hand:
-				#for face in ['T','J','Q','K']:
-				if val == 'A':
-					self.ace = True
-				elif val in ['T','J','Q','K']:
-					self.score += 10
-				else:
-					self.score += int(float(val))
-				#print(self.score)
+		self.score = 0
+		for val, suit in self.hand:
+			#for face in ['T','J','Q','K']:
+			if val == 'A':
+				self.ace = True
+			elif val in ['T','J','Q','K']:
+				self.score += 10
+			else:
+				self.score += int(float(val))
+			#print(self.score)
 
 			if self.ace:
 				if self.score + 11 > 21:
 					self.score += 1
+					self.ace = False
 				else:
-					self.score += 11
-			self.ace = False
-			return
+					self.score += 11	
+					self.ace = False
 
 	def playerInput(self):
 		self.handCalc()
@@ -75,27 +74,27 @@ class player:
 			print(self.hand)
 			if self.score == 21:
 				print("Player has %s, dealer assumes stay." % (self.score))
-				self.action = 'Stay'
+				self.action = 'stay'
 			else:
 				print("Dealer hand: %s & one face down." % str(house.hand[0][0]))
 				print(("Current hand sum: %s") % (self.score))	
 				self.action = raw_input('''What would you like to do?
 Hit
 Stay
->''') 
+>''').lower()
 				self.playerAction()
 
 	def playerAction(self):
-		if self.score < 22 or self.action != 'Stay':
+		if self.score < 22 or self.action != 'stay':
 			if self.action == 'deal':
 				self.newGame()
 				self.handCalc()
 				self.playerInput()
-			elif self.action == 'Hit':
+			elif self.action == 'hit':
 				self.hand.append(cardDeal())
 				self.playerInput()
 				self.handCalc()
-			elif self.action == 'Stay':
+			elif self.action == 'stay':
 				print("Stayed at %s" % (self.score))
 			else:
 				print("Incorrect input.")
@@ -160,6 +159,7 @@ class dealer:
 		while self.action == 'deal':
 			if self.score == 21 and len(self.hand) == 2:
 				print("Dealer blackjack.")
+				pass
 			elif self.score < 17 and self.action == 'deal':
 				self.hand.append(cardDeal())
 				print("Dealer hits %s, %s" % (str(self.score), self.hand))
