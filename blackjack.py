@@ -157,9 +157,9 @@ class dealer:
 	def dealerAction(self):
 		print("Dealer reveals: %s" % (self.hand))
 		while self.action == 'deal':
-			if self.score == 21 and len(self.hand) == 2:
+			if self.score == 21 and len(self.hand) == 2 and self.action == 'deal':
 				print("Dealer blackjack.")
-				pass
+				self.action = None
 			elif self.score < 17 and self.action == 'deal':
 				self.hand.append(cardDeal())
 				print("Dealer hits %s, %s" % (str(self.score), self.hand))
