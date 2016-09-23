@@ -2,6 +2,7 @@
 import random
 import itertools
 import pdb
+import sys
 
 suits = 'cdhs'
 ranks = '23456789TJQKA'
@@ -13,40 +14,68 @@ def cardDeal():
 	card = deck.pop()
 	return card	
 
+def handClear(player, dealer):
+	player.action = 'deal'
+	player.bet = 0
+	player.hand = []
+	dealer.action = 'deal'
+	dealer.hand = []
+
+
 def chickenDinner(player, dealer):
 	print("player score: %s, dealer score: %s" % (player.score, dealer.score))
 	if player.score > 21:
+		player.bet *= -1
 		print("Player busts")
-		#player.bet *= 0
 	elif player.score == 21 and len(player.hand) == 2:
+		player.bet *= 2.5
 		print("Player blackjack!")
-		#player.bet *= 2.5
 	elif player.score > dealer.score or dealer.score > 21:
+		player.bet *= 2
 		print("Player wins!")
-		#player.bet *= 2
 	elif player.score < dealer.score:
+		player.bet *= -1
 		print("Player loses.")
-		#player.bet *= 0
 	elif player.score == dealer.score:
+		player.bet *= 0
 		print("Game draw.")
-		#player.bet *= 1
 	else:
 		print("how did we get here?")
+	player.chips += player.bet
+
 
 class player:
 	chips = 300
 	score = 0
 	ace = False
+	bet = 0
 	action = 'deal'
 	hand = []
-
-	def deal(self):
-		cardDeal(self.hand)
-		print(hand)
 
 	def newGame(self):
 		while len(self.hand) < 2:
 			self.hand.append(cardDeal())
+
+	def betting(self):
+		while self.bet == 0:
+			user = raw_input('''Place bet or press ENTER to cashout
+>''')
+			if not user:
+				sys.exit()
+			elif user.isdigit():
+				if int(user) < 10:
+					print("Table minimum is 10")
+				elif int(user) > self.chips:
+					print("You only have %s credits" % (self.chips))
+				else:
+					self.bet = int(user)
+					print("You bet %s" % (self.bet))
+			else:
+				print("invalid input.")
+
+	def deal(self):
+		cardDeal(self.hand)
+		print(hand)		
 
 	def handCalc(self):
 		self.score = 0
@@ -79,15 +108,16 @@ class player:
 				print("Dealer hand: %s & one face down." % str(house.hand[0][0]))
 				print(("Current hand sum: %s") % (self.score))	
 				self.action = raw_input('''What would you like to do?
-Hit
-Stay
+HIT or STAY
 >''').lower()
 				self.playerAction()
 
 	def playerAction(self):
+		while self.bet == 0:
+			self.betting()
+
 		if self.score < 22 or self.action != 'stay':
 			if self.action == 'deal':
-				self.newGame()
 				self.handCalc()
 				self.playerInput()
 			elif self.action == 'hit':
@@ -104,28 +134,27 @@ Stay
 
 
 class dealer:
-	hand = []
 	ace = False
 	hand = []
 	score = 0
 	action = 'deal'
-	chip = 200
-	bet = 0
-
-	def deal(self):
-		cardDeal(self.hand)
-		print(hand)
 
 	def newGame(self):
 		while len(self.hand) < 2:
 			self.hand.append(cardDeal())
 			self.handCalc()
+
+	def deal(self):
+		cardDeal(self.hand)
+		print(hand)
+
+
 		#self.bet = raw_input('How much will you bet? > ')
 
 	def handCalc(self):
 		self.score = 0
 		if self.hand[0][0] == 'A':
-			print("Would you like to buy insurance?")
+			#print("Would you like to buy insurance?")
 			for val, suit in self.hand:
 				if val == 'A':
 					self.ace = True
@@ -171,20 +200,23 @@ class dealer:
 				print("Dealer Stays at %s" % (self.score))
 				self.action = None
 
+x = True
 player1 = player()
 house = dealer()
-player1.newGame()
-house.newGame()
-#print "Dealer hand is: " + str(house.hand[1])
-player1.playerAction()
-house.dealerAction()
+while x is True:
+	player1.newGame()
+	house.newGame()
+	player1.playerAction()
+	house.dealerAction()
 
-if player1.score > 21:
-	print("Final hand %s, break at %s" % (player1.hand, player1.score))
-else:
-	print("Player stayed at %s, hand was %s" % (player1.score, player1.hand))
+	if player1.score > 21:
+		print("Final hand %s, break at %s" % (player1.hand, player1.score))
+	else:
+		print("Player stayed at %s, hand was %s" % (player1.score, player1.hand))
 
-chickenDinner(player1, house)
+	chickenDinner(player1, house)
+	print("You received: %s, Total chip count: %s" % (player1.bet, player1.chips))
+	handClear(player1, house)
 
 #dealer.newGame()
 #dealer.checkScore()
